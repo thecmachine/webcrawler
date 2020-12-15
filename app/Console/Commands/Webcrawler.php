@@ -41,18 +41,49 @@ class Webcrawler extends Command
 
         $this->line("Webcrawler here, crawl " . $this->argument('url'));
 
-        $this->getLinks();
+        //get first page URLS
+        $urls = $this->getUrls();
+        $this->line('Internal URLS: ');
+        foreach($urls['internal'] as $url){
+            $this->line($url);
+        }
+        $this->line('External URLS: ');
+        foreach($urls['external'] as $url){
+            $this->line($url);
+        }
+
+        //print URLS
         return 0;
     }
 
-    public function getLinks(){
+    public function getUrls(){
         $html = file_get_contents($this->argument('url'));
         
         $dom = new \DOMDocument;
         @$dom->loadHTML($html);
         $links = $dom->getElementsByTagName('a');
-        foreach ($links as $link){
-            $this->line('Title: ' . $link->nodeValue . 'Url: ' . $link->getAttribute('href'));
+
+        $internalUrls = [];
+        $externalUrls = [];
+        $images = [];
+        foreach($links as $link){
+           
+            $domain = $this->argument('url');
+            $domain = str_replace("https://", "", $domain);
+            $domain = str_replace("http://", "", $domain);
+            $domainPosition =  strpos($link->getAttribute('href'), $domain);
+            if ($domainPosition !== false) {
+                $internalUrls[] = $link->getAttribute('href');
+            }else{
+                $externalUrls[] = $link->getAttribute('href');
+            }
         }
+
+        $urls = [
+            'internal' => array_unique($internalUrls),
+            'external' => array_unique($externalUrls),
+            'images'   => array_unique($images)
+        ];
+        return $urls;
     }
 }
