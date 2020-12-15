@@ -41,42 +41,71 @@ class Webcrawler extends Command
 
         $this->line("Webcrawler here, crawl " . $this->argument('url'));
 
+        $domain = $this->argument('url');
+        $domain = str_replace("https://", "", $domain);
+        $domain = str_replace("http://", "", $domain);
+
         //get first page URLS
-        $urls = $this->getUrls();
+        $urls = $this->getUrls($domain);
         $this->line('Internal URLS: ');
-        foreach($urls['internal'] as $url){
-            $this->line($url);
+        foreach($urls['internal'] as $page){
+            $this->line('Internal URL Parsed Links - ' . $page);
+
+            //differenciate page and domain because right now they're one
+            $pages = $this->getUrls($page);
+            $this->line('Internal URL: ');
+            foreach($pages['internal'] as $url){
+                $this->line($url);
+            }
+            $this->line('External URLS: ');
+            foreach($pages['external'] as $url){
+                $this->line($url);
+            }
+            $this->line('Images: ');
+            foreach($pages['images'] as $img){
+                $this->line($img);
+            }
         }
         $this->line('External URLS: ');
         foreach($urls['external'] as $url){
             $this->line($url);
+        }
+        $this->line('Images: ');
+        foreach($urls['images'] as $img){
+            $this->line($img);
         }
 
         //print URLS
         return 0;
     }
 
-    public function getUrls(){
+    public function getUrls($domain){
         $html = file_get_contents($this->argument('url'));
         
         $dom = new \DOMDocument;
         @$dom->loadHTML($html);
-        $links = $dom->getElementsByTagName('a');
 
+        $links = $dom->getElementsByTagName('a');
+        $images = $dom->getElementsByTagName('img');
+
+        //urls
         $internalUrls = [];
         $externalUrls = [];
         $images = [];
         foreach($links as $link){
-           
-            $domain = $this->argument('url');
-            $domain = str_replace("https://", "", $domain);
-            $domain = str_replace("http://", "", $domain);
+           // $this->line('link-'.$link->getAttribute('href'). '    domain-'.$domain);
             $domainPosition =  strpos($link->getAttribute('href'), $domain);
             if ($domainPosition !== false) {
                 $internalUrls[] = $link->getAttribute('href');
             }else{
                 $externalUrls[] = $link->getAttribute('href');
             }
+        }
+
+        //images 
+        foreach($images as $img){
+            $this->line();
+            $images[] = $img->getAttribute('src');
         }
 
         $urls = [
