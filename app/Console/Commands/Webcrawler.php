@@ -47,30 +47,30 @@ class Webcrawler extends Command
 
         //get first page URLS
         $urls = $this->getUrls($domain);
-        $this->line('Internal URLS: ');
+        $this->line('MAIN Internal URLS: ');
         foreach($urls['internal'] as $page){
             $this->line('Internal URL Parsed Links - ' . $page);
 
             //differenciate page and domain because right now they're one
-            $pages = $this->getUrls($page);
-            $this->line('Internal URL: ');
+            $pages = $this->getUrls($domain);
+            $this->line('SubpageInternal URLS: ');
             foreach($pages['internal'] as $url){
                 $this->line($url);
             }
-            $this->line('External URLS: ');
+            $this->line('Subpage External URLS: ');
             foreach($pages['external'] as $url){
                 $this->line($url);
             }
-            $this->line('Images: ');
+            $this->line('SubPage Images: ');
             foreach($pages['images'] as $img){
                 $this->line($img);
             }
         }
-        $this->line('External URLS: ');
+        $this->line('MAIN External URLS: ');
         foreach($urls['external'] as $url){
             $this->line($url);
         }
-        $this->line('Images: ');
+        $this->line('MAIN Images: ');
         foreach($urls['images'] as $img){
             $this->line($img);
         }
@@ -93,7 +93,8 @@ class Webcrawler extends Command
         $externalUrls = [];
         $images = [];
         foreach($links as $link){
-           // $this->line('link-'.$link->getAttribute('href'). '    domain-'.$domain);
+        //    $this->line('link-'.$link->getAttribute('href'). '    domain-'.$domain);
+           
             $domainPosition =  strpos($link->getAttribute('href'), $domain);
             if ($domainPosition !== false) {
                 $internalUrls[] = $link->getAttribute('href');
