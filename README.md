@@ -1,8 +1,9 @@
 ## Webcrawler Instructions
 
 - [Clone Github Repository](https://github.com/thecmachine/webcrawler)
-- ```git clone https://github.com/thecmachine/webcrawler.git```
-- Checkout MASTER branch (Not Main)
+- ```git clone https://github.com/thecmachine/webcrawler.git```.
+- Checkout MASTER branch (Not Main).
+- This will run in MacOS BASH Terminal, no docker container necessary.
 
 ## Run Webcrawler Artisan Command
 
