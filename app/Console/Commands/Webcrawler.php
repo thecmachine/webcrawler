@@ -74,8 +74,6 @@ class Webcrawler extends Command
         foreach($urls['images'] as $img){
             $this->line($img);
         }
-
-        //print URLS
         return 0;
     }
 
@@ -88,10 +86,10 @@ class Webcrawler extends Command
         $links = $dom->getElementsByTagName('a');
         $images = $dom->getElementsByTagName('img');
 
-        //urls
+        
         $internalUrls = [];
         $externalUrls = [];
-        $images = [];
+        $imageUrls = [];
         foreach($links as $link){
         //    $this->line('link-'.$link->getAttribute('href'). '    domain-'.$domain);
            
@@ -103,16 +101,15 @@ class Webcrawler extends Command
             }
         }
 
-        //images 
+        //parse image urls
         foreach($images as $img){
-            $this->line();
-            $images[] = $img->getAttribute('src');
+            $imageUrls[] = $img->getAttribute('src');
         }
 
         $urls = [
             'internal' => array_unique($internalUrls),
             'external' => array_unique($externalUrls),
-            'images'   => array_unique($images)
+            'images'   => array_unique($imageUrls)
         ];
         return $urls;
     }
