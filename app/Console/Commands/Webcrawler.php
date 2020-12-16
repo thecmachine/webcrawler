@@ -59,28 +59,16 @@ class Webcrawler extends Command
             $this->info('Internal URL Parsed Links - ' . $page);
 
             $pages = $this->getUrls($domain);
-            $this->info('SubpageInternal URLS: ');
-            foreach($pages['internal'] as $url){
-                $this->line($url);
-            }
-            $this->info('Subpage External URLS: ');
-            foreach($pages['external'] as $url){
-                $this->line($url);
-            }
-            $this->info('SubPage Images: ');
-            foreach($pages['images'] as $img){
-                $this->line($img);
-            }
-        }
-        $this->info('MAIN PAGE External URLS: ');
-        foreach($urls['external'] as $url){
-            $this->line($url);
-        }
-        $this->info('MAIN PAGE Images: ');
-        foreach($urls['images'] as $img){
-            $this->line($img);
+
+            //print/output Subpage Urls
+            $this->printUrls('SubpageInternal URLS: ', $pages['internal']);
+            $this->printUrls('Subpage External URLS: ', $pages['external']);
+            $this->printUrls('SubPage Images: ', $pages['images']);
         }
 
+        //print/output mainpage urls
+        $this->printUrls('MAIN PAGE External URLS: ', $urls['external']);
+        $this->printUrls('MAIN PAGE Images: ', $urls['images']);
         return 0;
     }
 
@@ -119,5 +107,12 @@ class Webcrawler extends Command
             'images'   => array_unique($imageUrls)
         ];
         return $urls;
+    }
+
+    public function printUrls($title, $urls){
+        $this->info($title);
+        foreach($urls as $img){
+            $this->line($img);
+        }
     }
 }
