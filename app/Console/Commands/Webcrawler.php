@@ -39,60 +39,65 @@ class Webcrawler extends Command
     {
         //  http://wiprodigital.com
 
-        $this->line("Webcrawler here, crawl " . $this->argument('url'));
+        // laravel handles this behind the scenes now, leaving for posterity
+        if(!$this->argument('url')){
+            $this->error("Url argument is required");
+        }
 
+        // quick script title
+        $this->info("Webcrawler here, crawl " . $this->argument('url'));
+
+        // grab URL argument and remove http and https 
         $domain = $this->argument('url');
         $domain = str_replace("https://", "", $domain);
         $domain = str_replace("http://", "", $domain);
 
         //get first page URLS
         $urls = $this->getUrls($domain);
-        $this->line('MAIN Internal URLS: ');
+        $this->info('MAIN PAGE Internal URLS: ');
         foreach($urls['internal'] as $page){
-            $this->line('Internal URL Parsed Links - ' . $page);
+            $this->info('Internal URL Parsed Links - ' . $page);
 
-            //differenciate page and domain because right now they're one
             $pages = $this->getUrls($domain);
-            $this->line('SubpageInternal URLS: ');
+            $this->info('SubpageInternal URLS: ');
             foreach($pages['internal'] as $url){
                 $this->line($url);
             }
-            $this->line('Subpage External URLS: ');
+            $this->info('Subpage External URLS: ');
             foreach($pages['external'] as $url){
                 $this->line($url);
             }
-            $this->line('SubPage Images: ');
+            $this->info('SubPage Images: ');
             foreach($pages['images'] as $img){
                 $this->line($img);
             }
         }
-        $this->line('MAIN External URLS: ');
+        $this->info('MAIN PAGE External URLS: ');
         foreach($urls['external'] as $url){
             $this->line($url);
         }
-        $this->line('MAIN Images: ');
+        $this->info('MAIN PAGE Images: ');
         foreach($urls['images'] as $img){
             $this->line($img);
         }
+
         return 0;
     }
 
     public function getUrls($domain){
+        //get URL's DOM and load without errors
         $html = file_get_contents($this->argument('url'));
-        
         $dom = new \DOMDocument;
         @$dom->loadHTML($html);
 
+        //grab anchor and image tags from DOM
         $links = $dom->getElementsByTagName('a');
         $images = $dom->getElementsByTagName('img');
 
-        
+        //parse internal and external urls
         $internalUrls = [];
         $externalUrls = [];
-        $imageUrls = [];
-        foreach($links as $link){
-        //    $this->line('link-'.$link->getAttribute('href'). '    domain-'.$domain);
-           
+        foreach($links as $link){           
             $domainPosition =  strpos($link->getAttribute('href'), $domain);
             if ($domainPosition !== false) {
                 $internalUrls[] = $link->getAttribute('href');
@@ -102,10 +107,12 @@ class Webcrawler extends Command
         }
 
         //parse image urls
+        $imageUrls = [];
         foreach($images as $img){
             $imageUrls[] = $img->getAttribute('src');
         }
 
+        //format return value with unique array values
         $urls = [
             'internal' => array_unique($internalUrls),
             'external' => array_unique($externalUrls),
